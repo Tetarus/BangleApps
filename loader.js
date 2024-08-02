@@ -19,11 +19,15 @@ if (window.location.host=="banglejs.com") {
 var RECOMMENDED_VERSION = "2v23";
 // could check http://www.espruino.com/json/BANGLEJS.json for this
 
-// We're only interested in Bangles
-DEVICEINFO = DEVICEINFO.filter(x=>x.id.startsWith("BANGLEJS"));
-// Where we get our usage data from
-Const.APP_USAGE_JSON = "https://banglejs.com/apps/appusage.json";
-Const.APP_DATES_CSV = "appdates.csv";
+// We're only interested in Magic3
+DEVICEINFO = [
+  {
+    id : "MAGIC3",
+    name : "Magic3",
+    features : ["BLE","GRAPHICS"],
+    img : "img/magic3.jpg"
+  }
+];
 
 // Set up source code URL
 (function() {
@@ -36,20 +40,16 @@ Const.APP_DATES_CSV = "appdates.csv";
 // When a device is found, filter the apps accordingly
 function onFoundDeviceInfo(deviceId, deviceVersion) {
   var fwURL = "#", fwExtraText = "";
-  if (deviceId == "BANGLEJS") {
-    fwURL = "https://www.espruino.com/Bangle.js#firmware-updates";
-    Const.MESSAGE_RELOAD = 'Hold BTN3\nto reload';
-  }
-  if (deviceId == "BANGLEJS2") {
-    fwExtraText = "with the <b>Firmware Update</b> app in this App Loader, or "
-    fwURL = "https://www.espruino.com/Bangle.js2#firmware-updates";
-    Const.MESSAGE_RELOAD = 'Hold button\nto reload';
+  if (deviceId == "MAGIC3") {
+    fwURL = "https://github.com/fanoush/ds-d6/tree/master/espruino/DFU/Magic3";
+    Const.MESSAGE_RELOAD = 'Hold BTN\nto reload';
+    Const.HAS_E_SHOWMESSAGE = false;
   }
 
-  if (deviceId != "BANGLEJS" && deviceId != "BANGLEJS2") {
-    showToast(`You're using ${deviceId}, not a Bangle.js. Did you want <a href="https://espruino.com/apps">espruino.com/apps</a> instead?` ,"warning", 20000);
+  if (deviceId != "MAGIC3") {
+    showToast(`You're using ${deviceId}, not a Magic3. Did you want <a href="https://espruino.com/apps">espruino.com/apps</a> instead?` ,"warning", 20000);
   } else if (versionLess(deviceVersion, RECOMMENDED_VERSION)) {
-    showToast(`You're using an old Bangle.js firmware (${deviceVersion}) and ${RECOMMENDED_VERSION} is available (<a href="https://www.espruino.com/ChangeLog" target="_blank">see changes</a>). You can update ${fwExtraText}<a href="${fwURL}" target="_blank">with the instructions here</a>` ,"warning", 20000);
+    showToast(`You're using an old Magic3 firmware (${deviceVersion}) and ${RECOMMENDED_VERSION} is available (<a href="https://www.espruino.com/ChangeLog" target="_blank">see changes</a>). You can update ${fwExtraText}<a href="${fwURL}" target="_blank">with the instructions here</a>` ,"warning", 20000);
   }
   // check against features shown?
   filterAppsForDevice(deviceId);
@@ -62,40 +62,6 @@ function onFoundDeviceInfo(deviceId, deviceVersion) {
 
 // Called when we refresh the list of installed apps
 function onRefreshMyApps() {
-  /* if we're allowed to, send usage stats. We'll only
-  actually send if the data has changed */
-  sendUsageStats();
-}
-
-var submittedUsageInfo = "";
-/* Send usage stats to servers if it has changed */
-function sendUsageStats() {
-  if (!SETTINGS.sendUsageStats) return; // not allowed!
-  if (device.uid === undefined) return; // no data yet!
-  if (!device.appsInstalled.length) return; // no installed apps or disconnected
-  /* Work out what we'll send:
-  * A suitably garbled UID so we can avoid too many duplicates
-  * firmware version
-  * apps installed
-  * apps favourited
-  */
-  var usageInfo = `uid=${encodeURIComponent(device.uid)}&fw=${encodeURIComponent(device.version)}&apps=${encodeURIComponent(device.appsInstalled.map(a=>a.id).join(","))}&favs=${encodeURIComponent(SETTINGS.favourites.join(","))}`;
-  // Do a quick check for unchanged data to reduce server load
-  if (usageInfo != submittedUsageInfo) {
-    console.log("sendUsageStats: Submitting usage stats...");
-    var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
-    xmlhttp.open("POST", "https://banglejs.com/submit_app_stats.php", true /*async*/);
-    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xmlhttp.onload = (e) => {
-      if (xmlhttp.readyState === 4)
-        console.log(`sendUsageStats (${xmlhttp.status}): ${xmlhttp.responseText}`);
-    };
-    xmlhttp.onerror = (e) => {
-      console.error("sendUsageStats ERROR: "+xmlhttp.statusText);
-    };
-    xmlhttp.send(usageInfo);
-    submittedUsageInfo = usageInfo;
-  }
 }
 
 var originalAppJSON = undefined;
@@ -163,24 +129,13 @@ window.addEventListener('load', (event) => {
     <div class="column col-12">
     <div class="form-group">
       <label class="form-switch">
-        <input type="checkbox" id="usage_stats" ${SETTINGS.sendUsageStats?"checked":""}>
-        <i class="form-icon"></i> Send favourite and installed apps to banglejs.com<br/>
-          <small>For 'Sort by Installed/Favourited' functionality (see <a href="http://www.espruino.com/Privacy">privacy policy</a>)</small>
-      </label>
-      <label class="form-switch">
         <input type="checkbox" id="remember_device">
         <i class="form-icon"></i> Don't ask again
       </label>
     </div>
     </div>
   </div>`;
-  showPrompt("Which Bangle.js?",html,{},false);
-  var usageStats = document.getElementById("usage_stats");
-  usageStats.addEventListener("change",event=>{
-    console.log("Send Usage Stats "+(event.target.checked?"on":"off"));
-    SETTINGS.sendUsageStats = event.target.checked;
-    saveSettings();
-  });
+  showPrompt("Which device?",html,{},false);
   htmlToArray(document.querySelectorAll(".devicechooser")).forEach(button => {
     button.addEventListener("click",event => {
       let rememberDevice = !!document.getElementById("remember_device").checked;
@@ -241,10 +196,8 @@ window.addEventListener('load', (event) => {
   el = document.getElementById("installdefault");
   if (el) el.addEventListener("click", event=>{
     getInstalledApps().then(() => {
-      if (device.id == "BANGLEJS")
-        return httpGet("defaultapps_banglejs1.json");
-      if (device.id == "BANGLEJS2")
-        return httpGet("defaultapps_banglejs2.json");
+      if (device.id == "MAGIC3")
+        return httpGet("defaultapps_magic3.json");
       throw new Error("Unknown device "+device.id);
     }).then(json=>{
       return installMultipleApps(JSON.parse(json), "default");
@@ -273,17 +226,6 @@ window.addEventListener('load', (event) => {
       console.log("BLE compatibility mode "+(event.target.checked?"on":"off"));
       SETTINGS.bleCompat = event.target.checked;
       Puck.increaseMTU = !SETTINGS.bleCompat;
-      saveSettings();
-    });
-  }
-
-  // Sending usage stats
-  var selectUsageStats = document.getElementById("settings-usage-stats");
-  if (selectUsageStats) {
-    selectUsageStats.checked = !!SETTINGS.sendUsageStats;
-    selectUsageStats.addEventListener("change",event=>{
-      console.log("Send Usage Stats "+(event.target.checked?"on":"off"));
-      SETTINGS.sendUsageStats = event.target.checked;
       saveSettings();
     });
   }

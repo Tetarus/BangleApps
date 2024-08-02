@@ -1,0 +1,14 @@
+{
+  "id": "eucKingsong",
+  "name": "Kingsong module",
+  "version": "0.01",
+  "description": "EUC module for Kingsong",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [
+    { "name": "eucKingsong", "url": "eucKingsong.js" },
+    { "name": "proxyKingsong", "url": "proxyKingsong.js" }
+  ]
+}

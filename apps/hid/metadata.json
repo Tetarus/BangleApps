@@ -1,0 +1,11 @@
+{
+  "id": "hid",
+  "name": "HID BT Music control",
+  "version": "0.01",
+  "description": "Music controls over BLEHID face",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [{ "name": "hid", "url": "hid.js" }]
+}

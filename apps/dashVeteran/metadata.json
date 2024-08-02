@@ -1,0 +1,11 @@
+{
+  "id": "dashVeteran",
+  "name": "Veteran Settings",
+  "version": "0.02",
+  "description": "EUC dashboard, Veteran settings gui files",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [{ "name": "dashVeteran", "url": "dashVeteran.js" }]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "eucVeteran",
+  "name": "Veteran module",
+  "version": "0.16",
+  "description": "EUC module for Veteran",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [
+    { "name": "eucVeteran", "url": "eucVeteran.js" },
+    { "name": "proxyVeteran", "url": "proxyVeteran.js" }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "init",
+  "name": "Init - Magic3/Rock",
+  "version": "0.19",
+  "description": "Screen driver and init functions",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [
+    { "name": "C:.bootrst", "url": "init.js" },
+    { "name": "C:.display", "url": "lcd_magic_12.js" }
+  ],
+  "sortorder": -50
+}

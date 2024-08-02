@@ -1,0 +1,11 @@
+{
+  "id": "w_scan",
+  "name": "BLE EUC scan",
+  "version": "0.01",
+  "description": "Shared scan face addon",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [{ "name": "w_scan", "url": "w_scan.js" }]
+}

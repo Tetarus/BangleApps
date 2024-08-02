@@ -1,0 +1,15 @@
+[
+  "init",
+  "handler",
+  "ui",
+  "clock",
+  "settings",
+  "hid",
+  "dash",
+  "euc",
+  "w_scan",
+  "eucKingsong",
+  "dashKingsong",
+  "eucVeteran",
+  "dashVeteran"
+]

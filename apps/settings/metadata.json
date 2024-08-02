@@ -1,0 +1,19 @@
+{
+  "id": "settings",
+  "name": "Settings",
+  "version": "0.01",
+  "description": "Settings face",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [
+    { "name": "C:settings", "url": "settings.js" },
+    { "name": "C:set_set", "url": "set_set.js" },
+    { "name": "set_apps", "url": "set_apps.js" },
+    { "name": "set_bt", "url": "set_bt.js" },
+    { "name": "set_theme", "url": "set_theme.js" },
+    { "name": "set_main", "url": "set_main.js" },
+    { "name": "set_dash", "url": "set_dash.js" }
+  ]
+}

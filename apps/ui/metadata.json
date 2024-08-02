@@ -1,0 +1,14 @@
+{
+  "id": "ui",
+  "name": "UI support",
+  "version": "0.01",
+  "description": "UI",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [
+    { "name": "C:UI", "url": "ui.js" },
+    { "name": "C:icons", "url": "icons.js" }
+  ]
+}

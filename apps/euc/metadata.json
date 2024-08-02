@@ -1,0 +1,15 @@
+{
+  "id": "euc",
+  "name": "EUC modules support",
+  "version": "0.12",
+  "description": "EUC module switcher, depends on wheel module",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [
+    { "name": "euc", "url": "euc.js" },
+    { "name": "eucSlot.json", "url": "eucSlot.json" },
+    { "name": "emuZ", "url": "emuZ.js" }
+  ]
+}

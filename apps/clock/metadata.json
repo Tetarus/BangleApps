@@ -1,0 +1,11 @@
+{
+  "id": "clock",
+  "name": "Clock",
+  "version": "0.01",
+  "description": "Clock face",
+  "icon": "icon.png",
+  "type": "clock",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [{ "name": "C:clock", "url": "clock.js" }]
+}

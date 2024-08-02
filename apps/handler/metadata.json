@@ -1,0 +1,26 @@
+{
+  "id": "handler",
+  "name": "Handler - V2",
+  "version": "0.16",
+  "description": "Magic3-Rock-Bangle functions handler",
+  "icon": "icon.png",
+  "type": "app",
+  "supports": ["MAGIC3"],
+  "readme": "README.md",
+  "storage": [
+    { "name": "handler_acc_SC7A20", "url": "handler_acc_SC7A20.js" },
+    { "name": "handler_btn", "url": "handler_btn.js" },
+    { "name": "handler_buzz", "url": "handler_buzz.js" },
+    { "name": "handler_charge", "url": "handler_charge.js" },
+    { "name": "handler_conn", "url": "handler_conn.js" },
+    { "name": "handler_cron", "url": "handler_cron.js" },
+    { "name": "handler_face", "url": "handler_face.js" },
+    { "name": "handler_fonts", "url": "handler_fonts.js" },
+    { "name": "handler_notify", "url": "handler_notify.js" },
+    { "name": "handler_set", "url": "handler_set.js" },
+    { "name": "handler_touch_716", "url": "handler_touch_716.js" },
+    { "name": "handler_touch", "url": "handler_touch.js" },
+    { "name": "handler", "url": "handler.js" }
+  ],
+  "sortorder": -40
+}
