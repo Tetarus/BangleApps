@@ -1,4 +1,5 @@
 Modules.addCached("eucWatch", () => {
+  if (process.env.BOARD == "MAGIC3") D7.write(1); // turns off HR red led + power up i2c chips
   //MAGIC3/Rock/QY03 LCD pins
   CS = D3;
   DC = D47;

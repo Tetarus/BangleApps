@@ -1,7 +1,7 @@
 {
   "id": "init",
   "name": "Init - Magic3/Rock",
-  "version": "0.01",
+  "version": "0.19",
   "description": "Screen driver and init functions",
   "icon": "icon.png",
   "type": "app",

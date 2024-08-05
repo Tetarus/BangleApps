@@ -1,5 +1,3 @@
-const STOR = require("Storage");
-
 var notify = {
   New: 0,
   nIm: 0,
@@ -7,9 +5,9 @@ var notify = {
   nCall: 0,
   nMail: 0,
 };
-notify.im = STOR.read("im.log") ? STOR.readJSON("im.log") : [];
-notify.info = STOR.read("info.log") ? STOR.readJSON("info.log") : [];
-notify.call = STOR.read("call.log") ? STOR.readJSON("call.log") : [];
+notify.im = require("Storage").read("im.log") ? require("Storage").readJSON("im.log") : [];
+notify.info = require("Storage").read("info.log") ? require("Storage").readJSON("info.log") : [];
+notify.call = require("Storage").read("call.log") ? require("Storage").readJSON("call.log") : [];
 function handleInfoEvent(event, discrete) {
   notify.nInfo++;
   notify.New++;

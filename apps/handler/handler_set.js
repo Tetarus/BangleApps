@@ -1,5 +1,3 @@
-const STOR = require("Storage");
-
 ew.is = {
   bt: 0,
   tor: 0,
@@ -19,7 +17,7 @@ ew.do.update.acc = function () {
   }
 };
 ew.do.update.settings = function () {
-  STOR.write("ew.json", ew.def);
+  require("Storage").write("ew.json", ew.def);
 };
 ew.do.reset.settings = function () {
   ew.def = { off: { clock: 5000 }, dash: { tot: "0", mph: 0, amp: 0, bat: 0, batS: 0, face: 0, accE: 0, clck: 0, clkS: 0, farn: 0, rtr: 5 }, name: "eucWatch", touchtype: "0", acctype: "0", hr24: 1, prxy: 0, timezone: "2", woe: 1, wob: 1, rfTX: -4, cli: 1, hid: 0, gb: 0, atc: 0, acc: 0, hidT: "media", bri: 2, buzz: 1, bpp: 4, info: 1, txt: 1 };
@@ -29,7 +27,7 @@ ew.do.update.bluetooth = function () {
   try {
     NRF.setAdvertising({}, { name: ew.def.name, connectable: true });
     NRF.setAddress(NRF.getAddress(), +" random");
-    if (ew.def.hid == 1 && !STOR.read("hid")) {
+    if (ew.def.hid == 1 && !require("Storage").read("hid")) {
       ew.def.hid = 0;
       return;
     }
@@ -83,7 +81,7 @@ ew.do.update.bluetooth = function () {
     }
     NRF.setServices(undefined, { uart: ew.def.cli || ew.def.gb ? true : false, hid: ew.def.hid && ew.is.hidM ? ew.is.hidM.report : undefined });
 
-    if (ew.def.gb && STOR.read("m_gb")) eval(STOR.read("m_gb"));
+    if (ew.def.gb && require("Storage").read("m_gb")) eval(require("Storage").read("m_gb"));
     else {
       global.GB = 0;
     }
@@ -99,15 +97,15 @@ ew.do.update.bluetooth = function () {
   } catch (e) {}
 };
 ew.do.fileRead = function (file, name) {
-  let got = STOR.readJSON([file + ".json"], 1);
+  let got = require("Storage").readJSON([file + ".json"], 1);
   if (got == undefined) return false;
   if (name || name == 0) {
-    if (STOR.readJSON([file + ".json"], 1)[name]) return STOR.readJSON([file + ".json"], 1)[name];
+    if (require("Storage").readJSON([file + ".json"], 1)[name]) return require("Storage").readJSON([file + ".json"], 1)[name];
     else return false;
-  } else return STOR.readJSON([file + ".json"], 1);
+  } else return require("Storage").readJSON([file + ".json"], 1);
 };
 ew.do.fileWrite = function (file, name, value, value2, value3) {
-  let got = STOR.readJSON([file + ".json"], 1);
+  let got = require("Storage").readJSON([file + ".json"], 1);
   if (got == undefined) got = {};
   if (!value && value != 0) delete got[name];
   else {
@@ -116,7 +114,7 @@ ew.do.fileWrite = function (file, name, value, value2, value3) {
       else got[name][value] = value2;
     else got[name] = value;
   }
-  STOR.writeJSON([file + ".json"], got);
+  require("Storage").writeJSON([file + ".json"], got);
   return true;
 };
 ew.do.setGattState = function () {
@@ -130,20 +128,20 @@ ew.do.setGattState = function () {
     } else ew.is.gIsB = 0;
   }
 };
-ew.def = STOR.readJSON("ew.json", 1);
+ew.def = require("Storage").readJSON("ew.json", 1);
 if (!ew.def) ew.do.reset.settings();
 if (!ew.def.rstP) ew.def.rstP = E.toJS(ew.pin.touch.RST);
 if (!ew.def.rstR) ew.def.rstR = 0xa5;
 if (!ew.def.addr) ew.def.addr = NRF.getAddress();
 if (!ew.def.off) ew.def.off = {};
 
-STOR
+require("Storage")
   .list("dash_")
   .forEach((dashfile) => {
     ew.is.dash.push(dashfile);
   });
-if (!STOR.read("dash.json")) {
+if (!require("Storage").read("dash.json")) {
   let dash = { slot: 1 };
-  STOR.write("dash.json", dash);
+  require("Storage").write("dash.json", dash);
 }
 E.setTimeZone(ew.def.timezone);
