@@ -1,11 +1,13 @@
-if (require("Storage").read("UI")) eval(require("Storage").read("UI"));
-if (require("Storage").read("handler_fonts")) eval(require("Storage").read("handler_fonts"));
-if (require("Storage").read("handler_notify")) eval(require("Storage").read("handler_notify"));
-if (require("Storage").read("handler_set")) eval(require("Storage").read("handler_set"));
-if (require("Storage").read("handler_buzz")) eval(require("Storage").read("handler_buzz"));
-if (require("Storage").read("handler_conn")) eval(require("Storage").read("handler_conn"));
-if (require("Storage").read("handler_face")) eval(require("Storage").read("handler_face"));
-if (require("Storage").read("handler_charge")) eval(require("Storage").read("handler_charge"));
+const STOR = require("Storage");
+
+if (STOR.read("UI")) eval(STOR.read("UI"));
+if (STOR.read("handler_fonts")) eval(STOR.read("handler_fonts"));
+if (STOR.read("handler_notify")) eval(STOR.read("handler_notify"));
+if (STOR.read("handler_set")) eval(STOR.read("handler_set"));
+if (STOR.read("handler_buzz")) eval(STOR.read("handler_buzz"));
+if (STOR.read("handler_conn")) eval(STOR.read("handler_conn"));
+if (STOR.read("handler_face")) eval(STOR.read("handler_face"));
+if (STOR.read("handler_charge")) eval(STOR.read("handler_charge"));
 var touchHandler = {
   go: function (e, x, y) {
     touchHandler[face.pageCurr](e, x, y);
@@ -16,27 +18,27 @@ var touchHandler = {
     }, 0);
   },
 };
-if (require("Storage").read("handler_btn")) eval(require("Storage").read("handler_btn"));
+if (STOR.read("handler_btn")) eval(STOR.read("handler_btn"));
 var i2c = new I2C();
 i2c.setup({ scl: ew.pin.i2c.SCL, sda: ew.pin.i2c.SDA, bitrate: 100000 });
 
 if (process.env.BOARD == "P8" || process.env.BOARD == "P22" || process.env.BOARD == "PINETIME") {
-  if (ew.def.touchtype != "716" && ew.def.touchtype != "816" && ew.def.touchtype != "816s") eval(require("Storage").read("handler_touch"));
-  else if (ew.def.touchtype == "816") eval(require("Storage").read("handler_touch_816"));
-  else if (ew.def.touchtype == "816s") eval(require("Storage").read("handler_touch_816s"));
-  else if (ew.def.touchtype == "716") eval(require("Storage").read("handler_touch_716"));
+  if (ew.def.touchtype != "716" && ew.def.touchtype != "816" && ew.def.touchtype != "816s") eval(STOR.read("handler_touch"));
+  else if (ew.def.touchtype == "816") eval(STOR.read("handler_touch_816"));
+  else if (ew.def.touchtype == "816s") eval(STOR.read("handler_touch_816s"));
+  else if (ew.def.touchtype == "716") eval(STOR.read("handler_touch_716"));
 } else {
-  eval(require("Storage").read("handler_touch"));
+  eval(STOR.read("handler_touch"));
 }
 
 if (process.env.BOARD == "P8" || process.env.BOARD == "P22") {
   if (ew.def.acctype != "SC7A20" && ew.def.acctype != "BMA421") {
     i2c.writeTo(0x18, 0x0f);
     ew.def.acctype = i2c.readFrom(0x18, 1) == 17 ? "SC7A20" : "BMA421";
-  } else if (ew.def.acctype === "BMA421") eval(require("Storage").read("handler_acc_BMA421"));
-  else if (ew.def.acctype === "SC7A20") eval(require("Storage").read("handler_acc_SC7A20"));
+  } else if (ew.def.acctype === "BMA421") eval(STOR.read("handler_acc_BMA421"));
+  else if (ew.def.acctype === "SC7A20") eval(STOR.read("handler_acc_SC7A20"));
 } else {
-  if (process.env.BOARD != "BANGLEJS2") eval(require("Storage").read("handler_acc_SC7A20"));
+  if (process.env.BOARD != "BANGLEJS2") eval(STOR.read("handler_acc_SC7A20"));
   else acc = { on: function () {}, off: function () {} };
 
   themeD = {
@@ -55,4 +57,4 @@ if (process.env.BOARD == "P8" || process.env.BOARD == "P22") {
   };
   theme = themeD;
 }
-if (require("Storage").read("handler_cron")) eval(require("Storage").read("handler_cron"));
+if (STOR.read("handler_cron")) eval(STOR.read("handler_cron"));

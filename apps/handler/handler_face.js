@@ -1,3 +1,5 @@
+const STOR = require("Storage");
+
 var face = {
   appCurr: "clock",
   appPrev: "clock",
@@ -61,7 +63,7 @@ var face = {
         if (face[app]) {
           face[0] = face[face.appCurr][0];
           face[1] = face[face.appCurr][1];
-        } else eval(require("Storage").read(app));
+        } else eval(STOR.read(app));
       }
       return;
     }
@@ -72,7 +74,7 @@ var face = {
       if (face[app]) {
         face[0] = face[face.appCurr][0];
         face[1] = face[face.appCurr][1];
-      } else eval(require("Storage").read(app));
+      } else eval(STOR.read(app));
     }
     this.off();
     face[page].init(arg);

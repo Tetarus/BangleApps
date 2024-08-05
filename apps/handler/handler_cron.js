@@ -1,3 +1,5 @@
+const STOR = require("Storage");
+
 cron = {
   event: {
     hour: () => {
@@ -22,7 +24,7 @@ cron = {
           let v = ew.do.fileRead("logDaySlot" + ew.def.dash.slot, pr);
           ew.do.fileWrite("logDaySlot" + ew.def.dash.slot, pr, (euc.log.trip[0] ? euc.dash.trip.totl - euc.log.trip[0] : 0) + (v ? v : 0));
         }
-        require("Storage")
+        STOR
           .list("logDaySlot")
           .forEach((logfile) => {
             ew.do.fileWrite(logfile.split(".")[0], x);
@@ -35,7 +37,7 @@ cron = {
           let v = ew.do.fileRead("logWeekSlot" + ew.def.dash.slot, pr);
           ew.do.fileWrite("logWeekSlot" + ew.def.dash.slot, pr, (euc.log.trip[1] ? euc.dash.trip.totl - euc.log.trip[1] : 0) + (v ? v : 0));
         }
-        require("Storage")
+        STOR
           .list("logWeekSlot")
           .forEach((logfile) => {
             ew.do.fileWrite(logfile.split(".")[0], x);
@@ -48,7 +50,7 @@ cron = {
           let v = ew.do.fileRead("logYearSlot" + ew.def.dash.slot, pr);
           ew.do.fileWrite("logYearSlot" + ew.def.dash.slot, pr, (euc.log.trip[2] ? euc.dash.trip.totl - euc.log.trip[2] : 0) + (v ? v : 0));
         }
-        require("Storage")
+        STOR
           .list("logYearSlot")
           .forEach((logfile) => {
             ew.do.fileWrite(logfile.split(".")[0], x);
