@@ -206,7 +206,11 @@ euc.temp.liveParse = function (inc) {
 };
 
 euc.temp.inpk = function (event) {
-  if (euc.is.busy) return;
+  if (euc.is.busy) {
+    euc.temp.tot = E.toUint8Array([0]);
+    euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
+    return;
+  }
   const inc = event.target.value.buffer;
   if (ew.is.bt === 5) euc.proxy.w(inc);
 
@@ -318,11 +322,11 @@ euc.conn = function (mac) {
                         c.startNotifications();
                       }
                     }
-                  }, 100);
+                  }, 80);
                 });
-              }, 100);
+              }, 80);
             });
-          }, 100);
+          }, 80);
         } else if (cmd === "hornOff") {
           euc.is.horn = 0;
         } else if (cmd === "start") {
