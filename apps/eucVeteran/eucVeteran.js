@@ -279,26 +279,10 @@ euc.conn = function (mac) {
     .then(function (c) {
       if (euc.dbg) console.log("EUC Veteran connected !");
       euc.wri = function (cmd, value) {
-        if (euc.tout.busy) {
-          clearTimeout(euc.tout.busy);
-          euc.tout.busy = setTimeout(() => {
-            euc.tout.busy = 0;
-          }, 100);
-          return;
-        }
-        euc.tout.busy = setTimeout(() => {
-          euc.tout.busy = 0;
-        }, 200);
         if (cmd === "proxy") {
-          c.writeValue(value)
-            .then(function () {
-              if (euc.tout.busy) {
-                clearTimeout(euc.tout.busy);
-                euc.tout.busy = 0;
-              }
-            })
-            .catch(euc.off);
+          c.writeValue(value).catch(euc.off);
         } else if (cmd === "hornOn") {
+          if (euc.is.horn) return;
           euc.is.horn = 1;
           if (!euc.is.busy) {
             euc.is.busy = 1;
@@ -309,26 +293,18 @@ euc.conn = function (mac) {
               setTimeout(() => {
                 c.writeValue(euc.cmd("beep")).then(function () {
                   setTimeout(() => {
-                    if (BTN1.read()) {
-                      if (euc.tout.busy) {
-                        clearTimeout(euc.tout.busy);
-                        euc.tout.busy = 0;
-                      }
-                      euc.wri("hornOn");
-                    } else {
-                      euc.is.horn = 0;
-                      if (euc.is.busy) {
-                        euc.is.busy = 0;
-                        c.startNotifications();
-                      }
+                    if (euc.is.busy) {
+                      euc.is.busy = 0;
+                      c.startNotifications();
                     }
-                  }, 80);
+                    euc.is.horn = 0;
+                  }, 30);
                 });
-              }, 80);
+              }, 60);
             });
-          }, 80);
+          }, 30);
         } else if (cmd === "hornOff") {
-          euc.is.horn = 0;
+          // euc.is.horn = 0;
         } else if (cmd === "start") {
           euc.state = "READY";
           c.startNotifications()
@@ -356,14 +332,7 @@ euc.conn = function (mac) {
             .catch(euc.off);
         } else if (euc.cmd(cmd)) {
           if (euc.dbg) console.log("EUC module wri:", euc.cmd(cmd));
-          c.writeValue(euc.cmd(cmd))
-            .then(function () {
-              if (euc.tout.busy) {
-                clearTimeout(euc.tout.busy);
-                euc.tout.busy = 0;
-              }
-            })
-            .catch(euc.off);
+          c.writeValue(euc.cmd(cmd)).catch(euc.off);
         }
       };
       if (!ew.do.fileRead("dash", "slot" + ew.do.fileRead("dash", "slot") + "Mac")) {

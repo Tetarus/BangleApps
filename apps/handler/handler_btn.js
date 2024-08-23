@@ -1,18 +1,15 @@
 function btn1(s) {
-  if (this.t1) {
-    clearTimeout(this.t1);
-    this.t1 = 0;
-  }
-  if (face.offid) {
-    clearTimeout(face.offid);
-    face.offid = 0;
-  }
+  if (this.t1) { clearTimeout(this.t1); this.t1 = 0; }
+
+  if (face.offid) { clearTimeout(face.offid); face.offid = 0; }
+
   if (s.state) {
     this.press = true;
     if (global.euc && euc.state == "READY" && euc.dash.live.spd >= 2 && euc.dash.opt.horn.en) {
       euc.wri("hornOn");
       return;
     }
+
     this.t1 = setTimeout(
       () => {
         this.t1 = 0;
@@ -21,7 +18,7 @@ function btn1(s) {
           this.press = false;
         }
       },
-      process.env.BOARD == "BANGLEJS2" ? 300 : 800,
+      500,
     );
   } else if (this.press && !s.state) {
     this.press = false;
@@ -50,9 +47,19 @@ function btn1(s) {
     return;
   } else face.off();
 }
-ew.tid.btn1 = setWatch(btn1, BTN1, { repeat: true, debounce: 50, edge: 0 });
+
+ew.tid.btn1 = setWatch(btn1, BTN1, {
+  repeat: true,
+  edge: "both",
+  debounce: 25
+});
+
 if (process.env.BOARD == "ROCK") {
   D46.mode("input_pulldown");
   btn2 = btn1.bind();
-  ew.tid.btn2 = setWatch(btn2, D46, { repeat: true, debounce: false, edge: 0 });
+  ew.tid.btn2 = setWatch(btn2, D46, {
+    repeat: true,
+    edge: "both",
+    debounce: 25
+  });
 }
