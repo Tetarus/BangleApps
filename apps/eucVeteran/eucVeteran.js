@@ -206,7 +206,7 @@ euc.temp.liveParse = function (inc) {
 };
 
 euc.temp.inpk = function (event) {
-  if (euc.is.busy) {
+  if (euc.is.horn) {
     euc.temp.tot = E.toUint8Array([0]);
     euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
     return;
@@ -282,29 +282,17 @@ euc.conn = function (mac) {
         if (cmd === "proxy") {
           c.writeValue(value).catch(euc.off);
         } else if (cmd === "hornOn") {
-          if (euc.is.horn) return;
+          if (euc.tout.horn) return;
           euc.is.horn = 1;
-          if (!euc.is.busy) {
-            euc.is.busy = 1;
-            c.stopNotifications();
-          }
-          setTimeout(() => {
-            c.writeValue(euc.cmd("beep")).then(function () {
-              setTimeout(() => {
-                c.writeValue(euc.cmd("beep")).then(function () {
-                  setTimeout(() => {
-                    if (euc.is.busy) {
-                      euc.is.busy = 0;
-                      c.startNotifications();
-                    }
-                    euc.is.horn = 0;
-                  }, 30);
-                });
-              }, 60);
-            });
-          }, 30);
+          euc.tout.horn = setInterval(function () {
+            c.writeValue(euc.cmd("beep"));
+          }, 100);
         } else if (cmd === "hornOff") {
-          // euc.is.horn = 0;
+          if (euc.tout.horn) {
+            clearInterval(euc.tout.horn);
+            euc.tout.horn = 0;
+          }
+          euc.is.horn = 0;
         } else if (cmd === "start") {
           euc.state = "READY";
           c.startNotifications()
