@@ -8,9 +8,7 @@
   "supports": ["MAGIC3"],
   "readme": "README.md",
   "storage": [
-    { "name": "C:dash_digital", "url": "dash_digital.js" },
     { "name": "C:dash_pwm", "url": "dash_pwm.js" },
-    { "name": "C:dash_simple", "url": "dash_simple.js" },
     { "name": "dashAlerts", "url": "dashAlerts.js" },
     { "name": "dashGarage", "url": "dashGarage.js" },
     { "name": "C:dashOff", "url": "dashOff.js" },
