@@ -1,7 +1,7 @@
 {
   "id": "dashVeteran",
   "name": "Veteran Settings",
-  "version": "0.02",
+  "version": "0.01",
   "description": "EUC dashboard, Veteran settings gui files",
   "icon": "icon.png",
   "type": "app",

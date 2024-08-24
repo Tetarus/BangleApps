@@ -1,7 +1,7 @@
 {
   "id": "eucKingsong",
   "name": "Kingsong module",
-  "version": "0.02",
+  "version": "0.01",
   "description": "EUC module for Kingsong",
   "icon": "icon.png",
   "type": "app",
