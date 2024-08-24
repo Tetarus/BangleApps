@@ -1,7 +1,13 @@
 function btn1(s) {
-  if (this.t1) { clearTimeout(this.t1); this.t1 = 0; }
+  if (this.t1) {
+    clearTimeout(this.t1);
+    this.t1 = 0;
+  }
 
-  if (face.offid) { clearTimeout(face.offid); face.offid = 0; }
+  if (face.offid) {
+    clearTimeout(face.offid);
+    face.offid = 0;
+  }
 
   if (s.state) {
     this.press = true;
@@ -10,16 +16,13 @@ function btn1(s) {
       return;
     }
 
-    this.t1 = setTimeout(
-      () => {
-        this.t1 = 0;
-        if (global.euc) {
-          euc.tgl();
-          this.press = false;
-        }
-      },
-      500,
-    );
+    this.t1 = setTimeout(() => {
+      this.t1 = 0;
+      if (global.euc) {
+        euc.tgl();
+        this.press = false;
+      }
+    }, 500);
   } else if (this.press && !s.state) {
     this.press = false;
     if (global.euc && euc.state == "READY" && euc.is.horn && euc.dash.opt.horn.en) {
@@ -51,7 +54,7 @@ function btn1(s) {
 ew.tid.btn1 = setWatch(btn1, BTN1, {
   repeat: true,
   edge: "both",
-  debounce: 25
+  debounce: 25,
 });
 
 if (process.env.BOARD == "ROCK") {
@@ -60,6 +63,6 @@ if (process.env.BOARD == "ROCK") {
   ew.tid.btn2 = setWatch(btn2, D46, {
     repeat: true,
     edge: "both",
-    debounce: 25
+    debounce: 25,
   });
 }

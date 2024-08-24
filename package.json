@@ -10,12 +10,15 @@
     "@typescript-eslint/parser": "^7.8.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.2.1",
     "http-server": "^14.1.1",
-    "npm-watch": "^0.11.0"
+    "npm-watch": "^0.11.0",
+    "prettier": "3.3.3"
   },
   "scripts": {
-    "lint-apps": "node bin/sync-lint-exemptions.mjs && eslint --max-warnings 0 ./apps",
+    "lint-apps": "eslint --max-warnings 0 ./apps",
     "lint-modules": "eslint --max-warnings 0 ./modules",
     "test": "node bin/sanitycheck.js && npm run lint-apps && npm run lint-modules",
     "fix": "eslint --fix ./apps ./modules",

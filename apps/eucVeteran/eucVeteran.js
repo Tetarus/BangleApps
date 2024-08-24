@@ -40,7 +40,7 @@ function checksum(packet) {
 
 function voltToPercent(volt) {
   const percentTable = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0, -5, -8];
-  const voltTable = [124.45, 122.63, 122.08, 121.87, 121.22, 119.75, 118.07, 116.77, 115.46, 114.29, 113.12, 111.92, 110.63, 109.36, 107.95, 106.37, 104.74, 103.30, 100.47, 97.49, 94.50, 90.31, 87];
+  const voltTable = [124.45, 122.63, 122.08, 121.87, 121.22, 119.75, 118.07, 116.77, 115.46, 114.29, 113.12, 111.92, 110.63, 109.36, 107.95, 106.37, 104.74, 103.3, 100.47, 97.49, 94.5, 90.31, 87];
 
   if (volt >= voltTable[0]) return percentTable[0];
   if (volt <= voltTable[voltTable.length - 1]) return percentTable[percentTable.length - 1];

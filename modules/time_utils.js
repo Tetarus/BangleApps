@@ -25,7 +25,7 @@ const ONE_DAY = 24 * ONE_HOUR;
 exports.encodeTime = (time) => {
   time = safeTime(time);
   return time.d * ONE_DAY + time.h * ONE_HOUR + time.m * ONE_MINUTE + time.s * ONE_SECOND;
-}
+};
 
 // internal use, set to zero all the undefined fields
 function safeTime(time) {
@@ -46,9 +46,9 @@ exports.decodeTime = (millis) => {
   millis -= m * ONE_MINUTE;
   var s = Math.floor(millis / ONE_SECOND);
   return { d: d, h: h, m: m, s: s };
-}
+};
 
-/** 
+/**
  * @param {object|int} value {h, m} object or milliseconds
  * @returns an human-readable time string like "10:25"
  * @throws an exception if d != 0 or h > 23 or m > 59
@@ -59,7 +59,7 @@ exports.formatTime = (value) => {
   if (time.h < 0 || time.h > 23) throw "Invalid value: must be 0 <= h <= 23";
   if (time.m < 0 || time.m > 59) throw "Invalid value: must be 0 <= m <= 59";
   return time.h + ":" + ("0" + time.m).substr(-2);
-}
+};
 
 /**
  * @param {object|int} value {d, h, m, s} object or milliseconds
@@ -73,12 +73,12 @@ exports.formatDuration = (value, compact) => {
   if (time.d > 0) duration += time.d + "d ";
   if (time.h > 0) duration += time.h + "h ";
   if (time.m > 0) duration += time.m + "m ";
-  if (time.s > 0) duration += time.s + "s"
-  duration = duration.trim()
+  if (time.s > 0) duration += time.s + "s";
+  duration = duration.trim();
   return compact ? duration.replace(" ", "") : duration;
-}
+};
 
 exports.getCurrentTimeMillis = () => {
   var time = new Date();
   return (time.getHours() * 3600 + time.getMinutes() * 60 + time.getSeconds()) * 1000;
-}
+};

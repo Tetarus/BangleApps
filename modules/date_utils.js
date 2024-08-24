@@ -22,9 +22,11 @@
  * @returns The localized name of the i-th day of the week
  */
 exports.dow = (i, abbreviated) => {
-  var dow = require("locale").dow({getDay:()=>(i|0)%7}, abbreviated).slice(0, (abbreviated == 2) ? 1 : 100);
+  var dow = require("locale")
+    .dow({ getDay: () => (i | 0) % 7 }, abbreviated)
+    .slice(0, abbreviated == 2 ? 1 : 100);
   return abbreviated == 2 ? dow.toUpperCase() : dow;
-}
+};
 
 /**
  * @param {int} firstDayOfWeek 0/undefined -> Sunday,
@@ -35,9 +37,9 @@ exports.dow = (i, abbreviated) => {
 exports.dows = (firstDayOfWeek, abbreviated) => {
   var dows = [];
   for (var i = 0; i < 7; i++) {
-    dows.push(exports.dow(i + (firstDayOfWeek || 0), abbreviated))
+    dows.push(exports.dow(i + (firstDayOfWeek || 0), abbreviated));
   }
-  return abbreviated == 2 ? dows.map(dow => dow.toUpperCase()) : dows;
+  return abbreviated == 2 ? dows.map((dow) => dow.toUpperCase()) : dows;
 };
 
 /**
@@ -46,9 +48,11 @@ exports.dows = (firstDayOfWeek, abbreviated) => {
  * @returns The localized name of the i-th month
  */
 exports.month = (i, abbreviated) => {
-  var month = require("locale").month({getMonth:()=>(11+(i|0))%12}, abbreviated).slice(0, (abbreviated == 2) ? 1 : 100);
+  var month = require("locale")
+    .month({ getMonth: () => (11 + (i | 0)) % 12 }, abbreviated)
+    .slice(0, abbreviated == 2 ? 1 : 100);
   return abbreviated == 2 ? month.toUpperCase() : month;
-}
+};
 
 /**
  * @param {int} abbreviated
@@ -57,7 +61,6 @@ exports.month = (i, abbreviated) => {
 exports.months = (abbreviated) => {
   var months = [];
   var locale = require("locale");
-  for (var i = 0; i < 12; i++)
-    months.push(locale.month({getMonth:()=>i}, abbreviated).slice(0, (abbreviated == 2) ? 1 : 100));
-  return abbreviated == 2 ? months.map(month => month.toUpperCase()) : months;
+  for (var i = 0; i < 12; i++) months.push(locale.month({ getMonth: () => i }, abbreviated).slice(0, abbreviated == 2 ? 1 : 100));
+  return abbreviated == 2 ? months.map((month) => month.toUpperCase()) : months;
 };

@@ -8,21 +8,21 @@ acc = {
   chk1:
     process.env.BOARD == "P8" || process.env.BOARD == "P22"
       ? () => {
-        if (i2c.readFrom(0x18, 1)[0] > 192) return true;
-      }
+          if (i2c.readFrom(0x18, 1)[0] > 192) return true;
+        }
       : () => {
-        if (i2c.readFrom(0x18, 1)[0] > 10 && i2c.readFrom(0x18, 1)[0] < 192) return true;
-      },
+          if (i2c.readFrom(0x18, 1)[0] > 10 && i2c.readFrom(0x18, 1)[0] < 192) return true;
+        },
   chk2:
     process.env.BOARD == "P8" || process.env.BOARD == "P22"
       ? () => {
-        let cor = acc.read();
-        if (cor.ax >= -1200 && cor.ax <= -200 && cor.ay >= -700 && cor.ay <= 1000 && cor.az <= -100) return true;
-      }
+          let cor = acc.read();
+          if (cor.ax >= -1200 && cor.ax <= -200 && cor.ay >= -700 && cor.ay <= 1000 && cor.az <= -100) return true;
+        }
       : () => {
-        let cor = acc.read();
-        if (cor.ax >= -200 && cor.ay <= 500 && cor.az > 500) return true;
-      },
+          let cor = acc.read();
+          if (cor.ax >= -200 && cor.ay <= 500 && cor.az > 500) return true;
+        },
   on: function (v) {
     i2c.writeTo(0x18, 0x20, 0x4f);
     i2c.writeTo(0x18, 0x21, 0x00);
