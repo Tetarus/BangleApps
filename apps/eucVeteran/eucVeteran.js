@@ -242,92 +242,126 @@ euc.wri = function (i) {
 };
 
 euc.conn = function (mac) {
+  // Disconnect if already connected
   if (euc.gatt && euc.gatt.connected) {
     if (euc.dbg) console.log("BLE already connected");
     euc.gatt.disconnect();
     return;
   }
+
+  // Handle private resolvable addresses
   if (mac.includes("private-resolvable") && !euc.proxy) {
-    let name = require("Storage").readJSON("dash.json", 1)["slot" + require("Storage").readJSON("dash.json", 1).slot + "Name"];
+    const dashConfig = require("Storage").readJSON("dash.json", 1);
+    const name = dashConfig["slot" + dashConfig.slot + "Name"];
+
     NRF.requestDevice({ timeout: 2000, filters: [{ namePrefix: name }] })
-      .then(function (device) {
+      .then((device) => {
         euc.proxy = 1;
         euc.conn(device.id);
       })
-      .catch(function (err) {
+      .catch((err) => {
         if (euc.dbg) console.log("Error:", err);
         euc.conn(euc.mac);
       });
     return;
   }
+
   euc.proxy = 0;
   euc.dash.trip.pwm = 0;
   euc.dash.trip.topS = 0;
+
+  // Start the BLE connection
   NRF.connect(mac, { minInterval: 7.5, maxInterval: 15 })
-    .then(function (g) {
+    .then((g) => {
       euc.gatt = g;
-      return euc.gatt.getPrimaryService(0xffe0);
+      return g.getPrimaryService(0xffe0);
     })
-    .then(function (s) {
-      return s.getCharacteristic(0xffe1);
-    })
-    .then(function (c) {
+    .then((s) => s.getCharacteristic(0xffe1))
+    .then((c) => {
       c.on("characteristicvaluechanged", euc.temp.inpk);
       euc.gatt.device.on("gattserverdisconnected", euc.off);
-      return c;
-    })
-    .then(function (c) {
-      if (euc.dbg) console.log("EUC Veteran connected !");
+
       euc.wri = function (cmd, value) {
-        if (cmd === "proxy") {
-          c.writeValue(value).catch(euc.off);
-        } else if (cmd === "hornOn") {
-          if (euc.tout.horn) return;
-          euc.is.horn = 1;
-          euc.tout.horn = setInterval(function () {
-            c.writeValue(euc.cmd("beep"));
-          }, 100);
-        } else if (cmd === "hornOff") {
-          if (euc.tout.horn) {
-            clearInterval(euc.tout.horn);
-            euc.tout.horn = 0;
-          }
-          euc.is.horn = 0;
-        } else if (cmd === "start") {
-          euc.state = "READY";
-          c.startNotifications()
-            .then(function () {
-              if (euc.dash.auto.onC.HL) return c.writeValue(euc.cmd(euc.dash.auto.onC.HL === 1 ? "setLightOn" : "setLightOff"));
-            })
-            .then(function () {
-              if (euc.dash.auto.onC.clrM) return c.writeValue(euc.cmd("clearMeter"));
-            })
-            .then(function () {
-              if (euc.dash.auto.onC.beep) return c.writeValue(euc.cmd("beep"));
-              euc.is.run = 1;
-            })
-            .catch(euc.off);
-        } else if (euc.state === "OFF" || cmd === "end") {
-          let hld = ["none", "setLightOn", "setLightOff"];
-          c.writeValue(euc.cmd(hld[euc.dash.auto.onD.HL]))
-            .then(function () {
-              if (euc.dash.auto.onD.beep) return c.writeValue(euc.cmd("beep"));
-            })
-            .then(function () {
-              euc.is.run = 0;
-              euc.gatt.disconnect();
-            })
-            .catch(euc.off);
-        } else if (euc.cmd(cmd)) {
-          if (euc.dbg) console.log("EUC module wri:", euc.cmd(cmd));
-          c.writeValue(euc.cmd(cmd)).catch(euc.off);
+        switch (cmd) {
+          case "proxy":
+            c.writeValue(value).catch(euc.off);
+            break;
+
+          case "hornOn":
+            if (euc.tout.horn) return;
+            euc.is.horn = 1;
+            euc.tout.horn = setInterval(() => {
+              c.writeValue(euc.cmd("beep"));
+            }, 200);
+            break;
+
+          case "hornOff":
+            if (euc.tout.horn) {
+              clearInterval(euc.tout.horn);
+              euc.tout.horn = 0;
+            }
+            euc.is.horn = 0;
+            break;
+
+          case "start":
+            c.startNotifications()
+              .then(() => {
+                if (euc.dash.auto.onC.HL) {
+                  return c.writeValue(euc.cmd(euc.dash.auto.onC.HL === 1 ? "setLightOn" : "setLightOff"));
+                }
+              })
+              .then(() => {
+                if (euc.dash.auto.onC.clrM) {
+                  return c.writeValue(euc.cmd("clearMeter"));
+                }
+              })
+              .then(() => {
+                if (euc.dash.auto.onC.beep) {
+                  return c.writeValue(euc.cmd("beep"));
+                }
+              })
+              .then(() => {
+                euc.state = "READY";
+                euc.is.run = 1;
+              })
+              .catch(euc.off);
+            break;
+
+          case "end":
+            Promise.resolve()
+              .then(() => {
+                if (euc.dash.auto.onD.HL) {
+                  return c.writeValue(euc.cmd(euc.dash.auto.onD.HL === 1 ? "setLightOn" : "setLightOff"));
+                }
+              })
+              .then(() => {
+                if (euc.dash.auto.onD.beep) {
+                  return c.writeValue(euc.cmd("beep"));
+                }
+              })
+              .then(() => {
+                euc.is.run = 0;
+                euc.gatt.disconnect();
+              })
+              .catch(euc.off);
+            break;
+
+          default:
+            if (euc.cmd(cmd)) {
+              if (euc.dbg) console.log("EUC module wri:", euc.cmd(cmd));
+              c.writeValue(euc.cmd(cmd)).catch(euc.off);
+            }
+            break;
         }
       };
+
+      // Update dash information
       if (!ew.do.fileRead("dash", "slot" + ew.do.fileRead("dash", "slot") + "Mac")) {
         euc.dash.info.get.mac = euc.mac;
         euc.updateDash(require("Storage").readJSON("dash.json", 1).slot);
         ew.do.fileWrite("dash", "slot" + ew.do.fileRead("dash", "slot") + "Mac", euc.mac);
       }
+
       buzzer.nav([100, 100, 150]);
       euc.wri("start");
     })
