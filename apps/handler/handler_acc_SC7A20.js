@@ -96,7 +96,7 @@ acc = {
           }
         },
         ew.pin.acc.INT,
-        { repeat: true, edge: "both", debounce: 50 },
+        { repeat: true, edge: "rising", debounce: 50 },
       );
       return true;
     }
