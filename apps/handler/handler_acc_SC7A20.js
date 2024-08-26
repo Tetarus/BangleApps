@@ -21,7 +21,7 @@ acc = {
         }
       : () => {
           let cor = acc.read();
-          if (cor.ax >= -200 && cor.ay <= 500 && cor.az > 500) return true;
+          if (cor.ax >= -200 && cor.ay >= -500 && cor.ay <= 500 && cor.az > 0) return true;
         },
   on: function (v) {
     i2c.writeTo(0x18, 0x20, 0x4f);
@@ -96,7 +96,7 @@ acc = {
           }
         },
         ew.pin.acc.INT,
-        { repeat: true, edge: "rising", debounce: 50 },
+        { repeat: true, edge: "both", debounce: 50 },
       );
       return true;
     }
