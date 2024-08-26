@@ -64,7 +64,10 @@ global.euc = {
         if (ew.def.prxy && require("Storage").read("proxy" + euc.dash.info.get.makr)) {
           eval(require("Storage").read("proxy" + euc.dash.info.get.makr));
         }
-        if (euc.dash.info.get.makr !== "Kingsong" || euc.dash.info.get.makr !== "inmotionV11") euc.dash.trip.topS = 0;
+        if (euc.dash.info.get.makr == "Veteran") {
+          euc.dash.trip.pwm = 0;
+          euc.dash.trip.topS = 0;
+        }
         this.conn(this.mac);
         if (ew.def.acc) acc.off();
         setTimeout(() => {

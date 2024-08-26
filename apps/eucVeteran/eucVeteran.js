@@ -303,8 +303,6 @@ euc.conn = function (mac) {
   }
 
   euc.proxy = 0;
-  euc.dash.trip.pwm = 0;
-  euc.dash.trip.topS = 0;
 
   // Start the BLE connection
   NRF.connect(mac, { minInterval: 7.5, maxInterval: 15 })

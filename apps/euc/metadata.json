@@ -1,7 +1,7 @@
 {
   "id": "euc",
   "name": "EUC modules support",
-  "version": "0.01",
+  "version": "0.02",
   "description": "EUC module switcher, depends on wheel module",
   "icon": "icon.png",
   "type": "app",
