@@ -1,7 +1,7 @@
 {
   "id": "handler",
   "name": "Handler - V2",
-  "version": "0.03",
+  "version": "0.04",
   "description": "Magic3-Rock-Bangle functions handler",
   "icon": "icon.png",
   "type": "app",
