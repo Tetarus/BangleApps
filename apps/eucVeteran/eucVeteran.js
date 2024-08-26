@@ -33,9 +33,16 @@ function checksum(packet) {
     console.log("Checksum verification");
   }
 
-  const tCRC32View = new DataView(packet, packet.length - 4, 4);
-  const tPckt = new Uint8Array(packet, 0, packet.length - 4);
-  return E.CRC32(tPckt) === tCRC32View.getUint32(0) ? 1 : 0;
+  // Extract the CRC32 checksum from the packet
+  const packetView = new DataView(packet);
+  const receivedCRC32 = packetView.getUint32(packet.length - 4, false);
+
+  // Calculate the CRC32 for the packet data excluding the checksum
+  const dataToCheck = new Uint8Array(packet, 0, packet.length - 4);
+  const calculatedCRC32 = E.CRC32(dataToCheck);
+
+  // Compare the calculated checksum with the received checksum
+  return calculatedCRC32 === receivedCRC32 ? 1 : 0;
 }
 
 function voltToPercent(volt) {
@@ -205,34 +212,63 @@ euc.temp.liveParse = function (inc) {
   }
 };
 
-euc.temp.inpk = function (event) {
-  if (euc.is.horn) {
-    euc.temp.tot = E.toUint8Array([0]);
-    euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
-    return;
-  }
-  const inc = event.target.value.buffer;
-  if (ew.is.bt === 5) euc.proxy.w(inc);
-
-  if (inc.length > 4 && inc[0] === 0xdc && inc[1] === 0x5a && inc[2] === 0x5c) euc.temp.tot = E.toUint8Array(inc);
-  else if (euc.temp.tot.buffer.length > 1) euc.temp.tot = E.toUint8Array(euc.temp.last, inc);
-  else return;
-  euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
-
-  const needBufLen = euc.temp.tot.buffer[3] + 4;
-  if (euc.temp.tot.buffer.length < needBufLen) return;
-
-  if (euc.temp.tot.buffer.length === needBufLen) {
-    if (ew.is.bt === 2) console.log("Veteran: in: length:", euc.temp.tot.buffer.length, " data :", [].map.call(euc.temp.tot, (x) => x.toString(16)).toString());
-    if (checksum(euc.temp.tot.buffer)) {
-      euc.temp.liveParse(euc.temp.tot.buffer);
-    } else {
-      if (ew.is.bt === 2) console.log("Packet checksum error. Dropped.");
-    }
-  } else if (ew.is.bt === 2) console.log("Packet size error. Dropped.");
-
+function resetTempBuffers() {
   euc.temp.tot = E.toUint8Array([0]);
   euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
+}
+
+function isValidStartPacket(buffer) {
+  return buffer.length > 4 && buffer[0] === 0xdc && buffer[1] === 0x5a && buffer[2] === 0x5c;
+}
+
+function processPacket(buffer) {
+  if (ew.is.bt === 2) {
+    console.log("Veteran: in: length:", buffer.length, " data :", [].map.call(buffer, (x) => x.toString(16)).toString());
+  }
+
+  if (checksum(buffer)) {
+    euc.temp.liveParse(buffer);
+  } else if (ew.is.bt === 2) {
+    console.log("Packet checksum error. Dropped.");
+  }
+}
+
+euc.temp.inpk = function (event) {
+  if (euc.is.horn) {
+    resetTempBuffers();
+    return;
+  }
+
+  const inc = event.target.value.buffer;
+
+  // Handle proxy if ew.is.bt is 5
+  if (ew.is.bt === 5) {
+    euc.proxy.w(inc);
+  }
+
+  // Check for the specific packet identifier and handle accordingly
+  if (isValidStartPacket(inc)) {
+    euc.temp.tot = E.toUint8Array(inc);
+  } else if (euc.temp.tot.buffer.length > 1) {
+    euc.temp.tot = E.toUint8Array(euc.temp.last, inc);
+  } else {
+    return;
+  }
+
+  euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
+
+  const expectedLength = euc.temp.tot.buffer[3] + 4;
+  if (euc.temp.tot.buffer.length < expectedLength) {
+    return;
+  }
+
+  if (euc.temp.tot.buffer.length === expectedLength) {
+    processPacket(euc.temp.tot.buffer);
+  } else if (ew.is.bt === 2) {
+    console.log("Packet size error. Dropped.");
+  }
+
+  resetTempBuffers();
 };
 
 euc.wri = function (i) {
@@ -292,7 +328,7 @@ euc.conn = function (mac) {
             euc.is.horn = 1;
             euc.tout.horn = setInterval(() => {
               c.writeValue(euc.cmd("beep"));
-            }, 200);
+            }, 150);
             break;
 
           case "hornOff":
