@@ -83,34 +83,48 @@ Modules.addCached("eucWatch", () => {
 
   function init() {
     "ram";
-    cmd(0x11); // sleep out
-    delayms(120);
-    cmd([0x36, 0]); // MADCTL - This is an unrotated screen
-    //cmd([0x37, 1, 44]); //256+44=300 = offset by -20 so no need to add +20 to y
-    // These 2 rotate the screen by 180 degrees
-    //[0x36,0xC0],     // MADCTL
-    //[0x37,0,80],   // VSCSAD (37h): Vertical Scroll Start Address of RAM
-    // ROTATE 90, swap also width,height in createArrayBuffer
-    //cmd([0x36,0x60]);cmd([0x37,0,20]);
-    //cmd([0x36,0xB4]);cmd([0x37,1,44]); // ROTATE -90
-    cmd([0x3a, 0x03]); // COLMOD - interface pixel format - 03 - 12bpp, 05 - 16bpp
-    cmd([0xb2, 0xb, 0xb, 0x33, 0x00, 0x33]); // PORCTRL (B2h): Porch Setting
-    cmd([0xb7, 0x11]); // GCTRL (B7h): Gate Control
-    cmd([0xbb, 0x35]); // VCOMS (BBh): VCOM Setting
-    cmd([0xc0, 0x2c]);
-    cmd([0xc2, 1]); // VDVVRHEN (C2h): VDV and VRH Command Enable
-    cmd([0xc3, 8]); // VRHS (C3h): VRH Set
-    cmd([0xc4, 0x20]); // VDVS (C4h): VDV Set
-    cmd([0xc6, 0x1f]); // VCMOFSET (C5h): VCOM Offset Set .
-    cmd([0xd0, 0xa4, 0xa1]); // PWCTRL1 (D0h): Power Control 1
-    cmd([0xe0, 0xf0, 0x4, 0xa, 0xa, 0x8, 0x25, 0x33, 0x27, 0x3d, 0x38, 0x14, 0x14, 0x25, 0x2a]); // PVGAMCTRL (E0h): Positive Voltage Gamma Control
-    cmd([0xe1, 0xf0, 0x05, 0x08, 0x7, 0x6, 0x2, 0x26, 0x32, 0x3d, 0x3a, 0x16, 0x16, 0x26, 0x2c]); // NVGAMCTRL (E1h): Negative Voltage Gamma Contro
-    cmd(0x21); // INVON (21h): Display Inversion On
-    cmd([0x35, 0]);
-    cmd([0x44, 0x25, 0, 0]);
-    delayms(120);
+    cmd(0x01); //ST7735_SWRESET: Software reset, 0 args, w/delay: 150 ms delay
+    delayms(120); // no apps to run
+    cmd(0x11); //SLPOUT
+    delayms(50);
+    //MADCTL: Set Memory access control (directions), 1 arg: row addr/col addr, bottom to top refresh
+    cmd(0x36, 0x00);
+    //COLMOD: Set color mode, 1 arg, no delay: 16-bit color /5=16,3=12bit
+    cmd([0x3a, 0x03]);
+    //PORCTRL: Porch control
+    cmd(0xb2, [0x0b, 0x0b, 0x33, 0x00, 0x33]);
+    //GCTRL: Gate control
+    cmd(0xb7, 0x11);
+    // VCOMS: VCOMS setting
+    cmd(0xbb, 0x35);
+    //LCMCTRL: CM control
+    cmd(0xc0, 0x2c);
+    //VDVVRHEN: VDV and VRH command enable
+    cmd(0xc2, 0x01);
+    // VRHS: VRH Set
+    cmd(0xc3, 0x08);
+    // VDVS: VDV Set
+    cmd(0xc4, 0x20);
+    //VCMOFSET: VCOM Offset Set .
+    cmd(0xc6, 0x1f);
+    //PWCTRL1: Power Control 1
+    cmd(0xd0, [0xa4, 0xa1]);
+    // PVGAMCTRL: Positive Voltage Gamma Control
+    cmd(0xe0, [0xf0, 0x04, 0x0a, 0x0a, 0x08, 0x25, 0x33, 0x27, 0x3d, 0x38, 0x14, 0x14, 0x25, 0x2a]);
+    //cmd(0xe0, [0x70, 0x15, 0x20, 0x15, 0x10, 0x09, 0x48, 0x33, 0x53, 0x0B, 0x19, 0x15, 0x2a, 0x2f]);   // PVGAMCTRL (E0h): Positive Voltage Gamma Control
+    //cmd([0xe1, 0x70, 0x15, 0x20, 0x15, 0x10, 0x09, 0x48, 0x33, 0x53, 0x0B, 0x19, 0x15, 0x2a, 0x2f]);   // NVGAMCTRL (E1h): Negative Voltage Gamma Control
+    // NVGAMCTRL: Negative Voltage Gamma Contro
+    // cmd(0xe1, [0xf0, 0x05, 0x08, 0x07, 0x06, 0x02, 0x26, 0x32, 0x3d, 0x3a, 0x16, 0x16, 0x26, 0x2c]);
+    //TFT_INVONN: Invert display, no args, no delay
+    cmd(0x21);
+    //TFT_NORON: Set Normal display on, no args, w/delay: 10 ms delay
+    cmd(0x13);
+    //TFT_DISPON: Set Main screen turn on, no args w/delay: 100 ms delay
     cmd(0x29);
-    //  cmd([0x35, 0]);
+    //cmd([0x35, 0]);
+    //cmd(0x2a,[0,0,0,239]);
+    //cmd(0x2b,[0,0,0,279]);
+    //cmd([0x2c]);
   }
 
   var bpp = 4; // powers of two work, 3=8 colors would be nice
@@ -200,7 +214,7 @@ Modules.addCached("eucWatch", () => {
     "ram";
     if (this.isOn) return;
     cmd(0x11);
-    delayms(10);
+    // delayms(10);
     g.flip();
     //cmd(0x13); //ST7735_NORON: Set Normal display on, no args, w/delay: 10 ms delay
     //cmd(0x29); //ST7735_DISPON: Set Main screen turn on, no args w/delay: 100 ms delay
