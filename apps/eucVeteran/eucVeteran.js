@@ -33,7 +33,7 @@ euc.temp.voltToPercent = function (volt) {
   for (let i = 1; i < voltTable.length; i++) {
     if (volt > voltTable[i]) {
       const ratio = (volt - voltTable[i]) / (voltTable[i - 1] - voltTable[i]);
-      return Math.round(percentTable[i] + ratio * (percentTable[i - 1] - percentTable[i]));
+      return percentTable[i] + ratio * (percentTable[i - 1] - percentTable[i]);
     }
   }
 
@@ -46,7 +46,7 @@ euc.temp.liveParse = function (inc) {
 
   // Volt + Battery
   euc.dash.live.volt = dv.getUint16(4) / 100;
-  euc.dash.live.bat = euc.dash.opt.bat.pack === 30 ? euc.temp.voltToPercent(euc.dash.live.volt) : euc.dash.opt.bat.pack === 36 ? (euc.dash.live.volt > 150.3 ? 100 : euc.dash.live.volt > 122.4 ? Math.round((euc.dash.live.volt - 119.7) / 0.306) : euc.dash.live.volt > 115.2 ? Math.round((euc.dash.live.volt - 115.2) / 0.81) : 0) : euc.dash.live.volt > 100.2 ? 100 : euc.dash.live.volt > 81.6 ? Math.round((euc.dash.live.volt - 80.7) / 0.195) : euc.dash.live.volt > 79.35 ? Math.round((euc.dash.live.volt - 79.35) / 0.4875) : 0;
+  euc.dash.live.bat = euc.dash.opt.bat.pack === 30 ? euc.temp.voltToPercent(euc.dash.live.volt) : euc.dash.opt.bat.pack === 36 ? (euc.dash.live.volt > 150.3 ? 100 : euc.dash.live.volt > 122.4 ? (euc.dash.live.volt - 119.7) / 0.306 : euc.dash.live.volt > 115.2 ? (euc.dash.live.volt - 115.2) / 0.81 : 0) : euc.dash.live.volt > 100.2 ? 100 : euc.dash.live.volt > 81.6 ? (euc.dash.live.volt - 80.7) / 0.195 : euc.dash.live.volt > 79.35 ? (euc.dash.live.volt - 79.35) / 0.4875 : 0;
   euc.log.batL.unshift(euc.dash.live.bat);
   if (euc.log.batL.length > 20) euc.log.batL.pop();
   euc.dash.alrt.bat.cc = euc.dash.live.bat >= 50 ? 0 : euc.dash.live.bat <= euc.dash.alrt.bat.hapt.low ? 2 : 1;
@@ -100,7 +100,7 @@ euc.temp.liveParse = function (inc) {
   euc.dash.opt.ride.pTlt = dv.getInt16(32);
 
   // PWM
-  euc.dash.live.pwm = Math.round(dv.getUint16(34) / 100);
+  euc.dash.live.pwm = dv.getUint16(34) / 100;
   euc.dash.trip.pwm = Math.max(euc.dash.trip.pwm, euc.dash.live.pwm);
   euc.dash.alrt.pwm.cc = euc.dash.live.pwm >= 88 ? 3 : euc.dash.live.pwm >= 84 ? 2 : euc.dash.live.pwm >= 80 ? 1 : 0;
   euc.dash.alrt.pwr = euc.dash.live.pwm >= 84 ? 1 : 0;

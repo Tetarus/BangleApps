@@ -1,7 +1,7 @@
 {
   "id": "dash",
   "name": "EUC Dashboard",
-  "version": "0.01",
+  "version": "0.02",
   "description": "EUC dashboard. Garage, scan and dash faces. Depends on EUC modules",
   "icon": "icon.png",
   "type": "app",
