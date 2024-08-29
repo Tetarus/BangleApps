@@ -14,20 +14,12 @@ euc.cmd = function (no) {
 euc.temp.checksum = function (packet) {
   const FWVer = (packet[28] << 8) | packet[29];
 
-  if (FWVer < 3012) {
-    if (ew.is.bt === 2 && euc.dbg) console.log("Firmware does not support checksum. FWVer:", FWVer);
-    return 1;
-  }
+  if (FWVer < 3012) return 1;
 
-  if (ew.is.bt === 2 && euc.dbg) console.log("Checksum verification");
+  const packetLength = packet.length;
+  const receivedCRC32 = (packet[packetLength - 4] << 24) | (packet[packetLength - 3] << 16) | (packet[packetLength - 2] << 8) | packet[packetLength - 1];
+  const calculatedCRC32 = E.CRC32(new Uint8Array(packet, 0, packetLength - 4));
 
-  // Extract the CRC32 checksum from the packet
-  const receivedCRC32 = (packet[packet.length - 4] << 24) | (packet[packet.length - 3] << 16) | (packet[packet.length - 2] << 8) | packet[packet.length - 1];
-
-  // Calculate the CRC32 for the packet data excluding the checksum
-  const calculatedCRC32 = E.CRC32(new Uint8Array(packet, 0, packet.length - 4));
-
-  // Compare the calculated checksum with the received checksum
   return calculatedCRC32 === receivedCRC32 ? 1 : 0;
 };
 
@@ -55,7 +47,6 @@ euc.temp.liveParse = function (inc) {
   // Volt + Battery
   euc.dash.live.volt = dv.getUint16(4) / 100;
   euc.dash.live.bat = euc.dash.opt.bat.pack === 30 ? euc.temp.voltToPercent(euc.dash.live.volt) : euc.dash.opt.bat.pack === 36 ? (euc.dash.live.volt > 150.3 ? 100 : euc.dash.live.volt > 122.4 ? Math.round((euc.dash.live.volt - 119.7) / 0.306) : euc.dash.live.volt > 115.2 ? Math.round((euc.dash.live.volt - 115.2) / 0.81) : 0) : euc.dash.live.volt > 100.2 ? 100 : euc.dash.live.volt > 81.6 ? Math.round((euc.dash.live.volt - 80.7) / 0.195) : euc.dash.live.volt > 79.35 ? Math.round((euc.dash.live.volt - 79.35) / 0.4875) : 0;
-
   euc.log.batL.unshift(euc.dash.live.bat);
   if (euc.log.batL.length > 20) euc.log.batL.pop();
   euc.dash.alrt.bat.cc = euc.dash.live.bat >= 50 ? 0 : euc.dash.live.bat <= euc.dash.alrt.bat.hapt.low ? 2 : 1;
@@ -135,63 +126,35 @@ euc.temp.liveParse = function (inc) {
   }
 };
 
-euc.temp.resetTempBuffers = function () {
-  euc.temp.tot = E.toUint8Array([0]);
-  euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
-};
-
-euc.temp.isValidStartPacket = function (buffer) {
-  return buffer.length > 4 && buffer[0] === 0xdc && buffer[1] === 0x5a && buffer[2] === 0x5c;
-};
-
-euc.temp.processPacket = function (buffer) {
-  if (ew.is.bt === 2) {
-    console.log("Veteran: in: length:", buffer.length, " data :", [].map.call(buffer, (x) => x.toString(16)).toString());
-  }
-
-  if (euc.temp.checksum(buffer)) {
-    euc.temp.liveParse(buffer);
-  } else if (ew.is.bt === 2) {
-    console.log("Packet checksum error. Dropped.");
-  }
-};
-
 euc.temp.inpk = function (event) {
   if (euc.is.horn) {
-    euc.temp.resetTempBuffers();
+    euc.temp.tot = E.toUint8Array([0]);
+    euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
     return;
   }
 
   const inc = event.target.value.buffer;
+  if (ew.is.bt === 5) euc.proxy.w(inc);
 
-  // Handle proxy if ew.is.bt is 5
-  if (ew.is.bt === 5) {
-    euc.proxy.w(inc);
-  }
-
-  // Check for the specific packet identifier and handle accordingly
-  if (euc.temp.isValidStartPacket(inc)) {
-    euc.temp.tot = E.toUint8Array(inc);
-  } else if (euc.temp.tot.buffer.length > 1) {
-    euc.temp.tot = E.toUint8Array(euc.temp.last, inc);
-  } else {
-    return;
-  }
-
+  if (inc.length > 4 && inc[0] === 0xdc && inc[1] === 0x5a && inc[2] === 0x5c) euc.temp.tot = E.toUint8Array(inc);
+  else if (euc.temp.tot.buffer.length > 1) euc.temp.tot = E.toUint8Array(euc.temp.last, inc);
+  else return;
   euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
 
-  const expectedLength = euc.temp.tot.buffer[3] + 4;
-  if (euc.temp.tot.buffer.length < expectedLength) {
-    return;
-  }
+  const expectedLen = euc.temp.tot.buffer[3] + 4;
+  if (euc.temp.tot.buffer.length < expectedLen) return;
 
-  if (euc.temp.tot.buffer.length === expectedLength) {
-    euc.temp.processPacket(euc.temp.tot.buffer);
-  } else if (ew.is.bt === 2) {
-    console.log("Packet size error. Dropped.");
-  }
+  if (euc.temp.tot.buffer.length === expectedLen) {
+    if (ew.is.bt === 2) console.log("Veteran: in: length:", euc.temp.tot.buffer.length, " data :", [].map.call(euc.temp.tot, (x) => x.toString(16)).toString());
+    if (euc.temp.checksum(euc.temp.tot.buffer)) {
+      euc.temp.liveParse(euc.temp.tot.buffer);
+    } else {
+      if (ew.is.bt === 2) console.log("Packet checksum error. Dropped.");
+    }
+  } else if (ew.is.bt === 2) console.log("Packet size error. Dropped.");
 
-  euc.temp.resetTempBuffers();
+  euc.temp.tot = E.toUint8Array([0]);
+  euc.temp.last = E.toUint8Array(euc.temp.tot.buffer);
 };
 
 euc.wri = function (i) {
@@ -201,17 +164,14 @@ euc.wri = function (i) {
 };
 
 euc.conn = function (mac) {
-  // Disconnect if already connected
   if (euc.gatt && euc.gatt.connected) {
     if (euc.dbg) console.log("BLE already connected");
     euc.gatt.disconnect();
     return;
   }
 
-  // Handle private resolvable addresses
   if (mac.includes("private-resolvable") && !euc.proxy) {
-    const dashConfig = require("Storage").readJSON("dash.json", 1);
-    const name = dashConfig["slot" + dashConfig.slot + "Name"];
+    const name = require("Storage").readJSON("dash.json", 1)["slot" + require("Storage").readJSON("dash.json", 1).slot + "Name"];
 
     NRF.requestDevice({ timeout: 2000, filters: [{ namePrefix: name }] })
       .then((device) => {
@@ -227,7 +187,6 @@ euc.conn = function (mac) {
 
   euc.proxy = 0;
 
-  // Start the BLE connection
   NRF.connect(mac, { minInterval: 7.5, maxInterval: 15 })
     .then((g) => {
       euc.gatt = g;
@@ -312,7 +271,6 @@ euc.conn = function (mac) {
         }
       };
 
-      // Update dash information
       if (!ew.do.fileRead("dash", "slot" + ew.do.fileRead("dash", "slot") + "Mac")) {
         euc.dash.info.get.mac = euc.mac;
         euc.updateDash(require("Storage").readJSON("dash.json", 1).slot);
