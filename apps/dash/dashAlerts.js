@@ -86,7 +86,6 @@ face[0] = {
     UIc.bar._bar(6);
   },
   bar: function () {
-    "ram";
     UI.ele.ind(this.tab, euc.dash.info.get.makr == "Kingsong" ? 2 : 1, 0);
     if (ew.temp.l) {
       ew.temp.l = 0;

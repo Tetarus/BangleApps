@@ -56,7 +56,6 @@ acc = {
       i2c.writeTo(0x18, 0x32, 5);
       i2c.writeTo(0x18, 0x33, 15);
       ew.tid.acc = setInterval(() => {
-        "ram";
         if (this.chk2()) {
           if (w.gfx.isOn) {
             changeInterval(ew.tid.acc, 1500);
@@ -102,13 +101,11 @@ acc = {
     }
   },
   read: function () {
-    "ram";
     i2c.writeTo(0x18, 0xa8);
     var a = i2c.readFrom(0x18, 6);
     return { ax: this.conv(a[0], a[1]), ay: this.conv(a[2], a[3]), az: this.conv(a[4], a[5]) };
   },
   conv: function (lo, hi) {
-    "ram";
     let i = (hi << 8) + lo;
     return ((i & 0x7fff) - (i & 0x8000)) / 16;
   },

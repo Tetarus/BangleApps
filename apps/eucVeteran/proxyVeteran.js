@@ -3,7 +3,6 @@ if (global.euc && !euc.proxy) {
     state: 0,
     buffer: [],
     r: (o) => {
-      "ram";
       if (euc.state == "READY") euc.wri("proxy", o.data);
       if (ew.dbg && ew.log) {
         ew.log.unshift("Proxy from phone: " + " " + Date() + " " + E.toJS(o.data));
@@ -11,7 +10,6 @@ if (global.euc && !euc.proxy) {
       }
     },
     w: (o) => {
-      "ram";
       if (ew.is.bt != 5) {
         if (euc.dbg > 1) console.log("relay-out:", o);
         return;

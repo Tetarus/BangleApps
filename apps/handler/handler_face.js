@@ -9,7 +9,6 @@ var face = {
   offid: 0,
   offms: -1,
   off: function (t) {
-    "ram";
     if (this.pageCurr === -1) return;
     if (this.offid) {
       clearTimeout(this.offid);
@@ -26,7 +25,6 @@ var face = {
     );
   },
   off1: function (c) {
-    "ram";
     face.batt = 0;
     if (face[c].off) {
       TC.stop();
@@ -36,7 +34,6 @@ var face = {
     } else face.go(this.appCurr, -1);
   },
   go: function (app, page, arg) {
-    "ram";
     this.appPrev = this.appCurr;
     this.pagePrev = this.pageCurr;
     this.appCurr = app;

@@ -14,7 +14,6 @@ Modules.addCached("eucWatch", () => {
   DC.write(1);
 
   function toFlatString(arr, retries) {
-    "ram";
     return (
       (E.toFlatString || E.toString)(arr) ||
       (function () {
@@ -53,14 +52,12 @@ Modules.addCached("eucWatch", () => {
   SPI2.enable(0x14, 0); //32MBit, mode 0
 
   function delayms(ms) {
-    "ram";
     // for short delays, blocks everything
     digitalPulse(DC, 0, ms); // use some harmless pin (LCD DC)
     digitalPulse(DC, 0, 0); // 0ms just waits for previous call
   }
 
   function cmd(a) {
-    "ram";
     var l = a.length;
     if (!l) return SPI2.cmd4(a, -1, -1, -1);
     if (l == 2) return SPI2.cmd4(a[0], a[1], -1, -1);
@@ -72,7 +69,6 @@ Modules.addCached("eucWatch", () => {
   }
 
   function cmds(arr) {
-    "ram";
     var b = toFlatString(arr);
     var c = SPI2.cmds(E.getAddressOf(b, true), b.length);
     if (c < 0) print("lcd_cmds: buffer mismatch, cnt=" + c);
@@ -82,7 +78,6 @@ Modules.addCached("eucWatch", () => {
   RST.set(); // release LCD from reset
 
   function init() {
-    "ram";
     cmd(0x01); //ST7735_SWRESET: Software reset, 0 args, w/delay: 150 ms delay
     delayms(120); // no apps to run
     cmd(0x11); //SLPOUT
@@ -185,7 +180,6 @@ Modules.addCached("eucWatch", () => {
   g.stride = (g.getWidth() * bpp) / 8;
 
   g.flip = function (force) {
-    "ram";
     var r = g.getModified(true);
     if (force) r = { x1: 0, y1: 0, x2: this.getWidth() - 1, y2: this.getHeight() - 1 };
     if (r === undefined) return;
@@ -211,7 +205,6 @@ Modules.addCached("eucWatch", () => {
   init();
 
   g.on = function () {
-    "ram";
     if (this.isOn) return;
     cmd(0x11);
     // delayms(10);
@@ -223,7 +216,6 @@ Modules.addCached("eucWatch", () => {
   };
 
   g.off = function () {
-    "ram";
     if (!this.isOn) return;
     // cmd(0x28);
     cmd(0x10);
@@ -249,7 +241,6 @@ Modules.addCached("eucWatch", () => {
 
   // battery
   const batt = function (i, c) {
-    "ram";
     let v = (4.2 / 0.6) * analogRead(ew.pin.BAT);
     let l = 3.5,
       h = 4.19;

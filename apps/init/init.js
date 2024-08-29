@@ -8,7 +8,6 @@ E.showMessage = print;
 
 E.kickWatchdog();
 KickWd = function () {
-  "ram";
   if (typeof BTN1 == "undefined" || !BTN1.read()) E.kickWatchdog();
 };
 var wdint = setInterval(KickWd, 2000);
@@ -30,7 +29,6 @@ if ((BTN1.read() || require("Storage").read("devmode")) && process.env.BOARD != 
 
   setWatch(
     function () {
-      "ram";
       require("Storage").erase("devmode");
       require("Storage").erase("devmode.info");
       NRF.setServices({}, { uart: false });
