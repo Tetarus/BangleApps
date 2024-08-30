@@ -11,7 +11,7 @@ function btn1(s) {
 
   if (s.state) {
     this.press = true;
-    if (global.euc && euc.state == "READY" && euc.dash.live.spd >= 2 && euc.dash.opt.horn.en) {
+    if (global.euc && euc.state === "READY" && euc.dash.live.spd >= 2 && euc.dash.opt.horn.en) {
       euc.wri("hornOn");
       return;
     }
@@ -25,14 +25,14 @@ function btn1(s) {
     }, 500);
   } else if (this.press && !s.state) {
     this.press = false;
-    if (global.euc && euc.state == "READY" && euc.is.horn && euc.dash.opt.horn.en) {
+    if (global.euc && euc.state === "READY" && euc.is.horn && euc.dash.opt.horn.en) {
       euc.wri("hornOff");
       return;
     }
-    if (face.pageCurr == -1) {
+    if (face.pageCurr === -1) {
       buzzer.nav(buzzer.buzz.on);
-      face.go(global.euc && euc.state != "OFF" ? ew.is.dash[ew.def.dash.face] : face.appCurr, 0);
-    } else if (euc.state != "OFF") {
+      face.go(global.euc && euc.state !== "OFF" ? ew.is.dash[ew.def.dash.face] : face.appCurr, 0);
+    } else if (euc.state !== "OFF") {
       if (face.appCurr.startsWith("dash_")) {
         acc.isUp = 1;
         if (ew.tid.acc) changeInterval(ew.tid.acc, 500);
@@ -40,10 +40,8 @@ function btn1(s) {
         buzzer.nav(buzzer.buzz.off);
       } else face.go(ew.is.dash[ew.def.dash.face], 0);
     } else {
-      if (face.appCurr == "clock") {
-        face.go("clock", -1);
-        buzzer.nav(buzzer.buzz.off);
-      } else face.go("clock", 0);
+      face.go(face.appCurr === "clock" ? "clock" : "clock", face.appCurr === "clock" ? -1 : 0);
+      if (face.appCurr === "clock") buzzer.nav(buzzer.buzz.off);
     }
   } else if (this.press && global.euc && euc.state === "READY" && euc.is.horn && euc.dash.opt.horn.en) {
     euc.wri("hornOff");
@@ -57,10 +55,9 @@ ew.tid.btn1 = setWatch(btn1, BTN1, {
   debounce: 25,
 });
 
-if (process.env.BOARD == "ROCK") {
+if (process.env.BOARD === "ROCK") {
   D46.mode("input_pulldown");
-  btn2 = btn1.bind();
-  ew.tid.btn2 = setWatch(btn2, D46, {
+  ew.tid.btn2 = setWatch(btn1.bind(), D46, {
     repeat: true,
     edge: "both",
     debounce: 25,
