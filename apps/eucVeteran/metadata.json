@@ -1,7 +1,7 @@
 {
   "id": "eucVeteran",
   "name": "Veteran module",
-  "version": "0.10",
+  "version": "0.11",
   "description": "EUC module for Veteran",
   "icon": "icon.png",
   "type": "app",
