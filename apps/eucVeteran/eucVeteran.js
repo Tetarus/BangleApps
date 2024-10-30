@@ -23,21 +23,42 @@ euc.temp.checksum = function (packet) {
   return calculatedCRC32 === receivedCRC32 ? 1 : 0;
 };
 
-euc.temp.voltToPercent = function (volt) {
-  const percentTable = [100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0, -5, -8];
-  const voltTable = [124.45, 122.63, 122.08, 121.87, 121.22, 119.75, 118.07, 116.77, 115.46, 114.29, 113.12, 111.92, 110.63, 109.36, 107.95, 106.37, 104.74, 103.3, 100.47, 97.49, 94.5, 90.31, 87];
+euc.temp.voltToPercent = function (voltage) {
+  // Voltage to SoC mapping
+  const volToSoc = [
+    94.50, 94.95, 95.43, 95.91, 96.39, 96.87, 97.35, 97.80, 98.28,
+    98.76, 99.24, 99.72, 100.20, 100.47, 100.77, 101.07, 101.37,
+    101.67, 101.97, 102.27, 102.57, 102.87, 103.17, 103.47, 103.77,
+    104.01, 104.28, 104.55, 104.82, 105.09, 105.36, 105.63, 105.90,
+    106.17, 106.44, 106.71, 106.98, 107.25, 107.49, 107.73, 108.00,
+    108.24, 108.48, 108.75, 108.99, 109.23, 109.50, 109.74, 109.98,
+    110.25, 110.46, 110.67, 110.88, 111.12, 111.33, 111.54, 111.78,
+    111.99, 112.20, 112.44, 112.65, 112.86, 113.10, 113.40, 113.70,
+    114.00, 114.30, 114.60, 114.90, 115.20, 115.50, 115.80, 116.10,
+    116.40, 116.70, 117.03, 117.36, 117.69, 118.05, 118.38, 118.71,
+    119.04, 119.40, 119.73, 120.06, 120.39, 120.75, 120.96, 121.20,
+    121.44, 121.65, 121.89, 122.13, 122.34, 122.58, 122.82, 123.03,
+    123.27, 123.51, 123.75
+  ];
 
-  if (volt >= voltTable[0]) return percentTable[0];
-  if (volt <= voltTable[voltTable.length - 1]) return percentTable[percentTable.length - 1];
+  // Handle edge cases for out-of-bound values
+  if (voltage <= volToSoc[0]) {
+    return 0; // Return 0 if voltage is less than or equal to the first element
+  }
+  if (voltage >= volToSoc[volToSoc.length - 1]) {
+    return 100; // Return 100 if voltage is greater than or equal to the last element
+  }
 
-  for (let i = 1; i < voltTable.length; i++) {
-    if (volt > voltTable[i]) {
-      const ratio = (volt - voltTable[i]) / (voltTable[i - 1] - voltTable[i]);
-      return percentTable[i] + ratio * (percentTable[i - 1] - percentTable[i]);
+  // Find the appropriate index
+  for (let i = 0; i < volToSoc.length - 1; i++) {
+    if (voltage > volToSoc[i]) {
+      if (voltage <= volToSoc[i + 1]) {
+        return i + 1; // Return the next index
+      }
     }
   }
 
-  return percentTable[percentTable.length - 1];
+  return 100; // Fallback return value, should not reach here if voltage is valid
 };
 
 euc.temp.liveParse = function (inc) {
