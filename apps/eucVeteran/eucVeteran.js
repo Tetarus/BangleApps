@@ -26,46 +26,42 @@ euc.temp.checksum = function (packet) {
 euc.temp.voltToPercent = function (voltage) {
   // Voltage to SoC mapping
   const volToSoc = [
-    88, 89.25, 90.38, 91.39, 92.29, 93.09, 93.82,
-    94.5, 95.14, 95.75, 96.34, 96.93, 97.51, 98.1, 98.69, 99.29, 99.89,
-    100.49, 101.09, 101.69, 102.28, 102.82, 103.31, 103.71, 104.04, 104.31, 104.53,
-    104.72, 104.95, 105.26, 105.68, 106.09, 106.47, 106.8, 107.11, 107.4, 107.67,
-    107.94, 108.21, 108.48, 108.74, 109.01, 109.27, 109.53, 109.79, 110.05, 110.31,
-    110.57, 110.83, 111.08, 111.34, 111.59, 111.84, 112.09, 112.33, 112.57, 112.81,
-    113.05, 113.28, 113.52, 113.74, 113.97, 114.2, 114.43, 114.67, 114.91, 115.15,
-    115.4, 115.66, 115.92, 116.18, 116.45, 116.71, 116.97, 117.23, 117.48, 117.74,
-    118, 118.29, 118.6, 118.93, 119.29, 119.66, 120.02, 120.37, 120.68, 120.95,
-    121.18, 121.37, 121.52, 121.64, 121.74, 121.81, 121.86, 121.9, 121.93, 121.97,
-    122.02, 122.09, 122.18, 122.29, 122.42, 122.58, 122.77, 123.03, 123.4, 123.91
+    9450, 9495, 9543, 9591, 9639, 9687, 9735, 9780, 9828, 9876, 9924, 9972, 
+    10020, 10047, 10077, 10107, 10137, 10167, 10197, 10227, 10257, 10287, 
+    10317, 10347, 10377, 10401, 10428, 10455, 10482, 10509, 10536, 10563, 
+    10590, 10617, 10644, 10671, 10698, 10725, 10749, 10773, 10800, 10824, 
+    10848, 10875, 10899, 10923, 10950, 10974, 10998, 11025, 11046, 11067, 
+    11088, 11112, 11133, 11154, 11178, 11199, 11220, 11244, 11265, 11286, 
+    11310, 11340, 11370, 11400, 11430, 11460, 11490, 11520, 11550, 11580, 
+    11610, 11640, 11670, 11703, 11736, 11769, 11805, 11838, 11871, 11904, 
+    11940, 11973, 12006, 12039, 12075, 12096, 12120, 12144, 12165, 12189, 
+    12213, 12234, 12258, 12282, 12303, 12327, 12351, 12375
   ];
 
-  // Handle edge cases for out-of-bound values
-  if (voltage <= volToSoc[0]) {
-    return -7; // Return -7 if voltage is less than or equal to the first element
-  }
-  if (voltage >= volToSoc[volToSoc.length - 1]) {
-    return 100; // Return 100 if voltage is greater than or equal to the last element
-  }
+  // Handle values outside the range directly
+  if (voltage <= volToSoc[0]) return 0;
+  if (voltage >= volToSoc[volToSoc.length - 1]) return 100;
 
-  // Find the appropriate index
-  for (let i = 0; i < volToSoc.length - 1; i++) {
-    if (voltage > volToSoc[i]) {
-      if (voltage <= volToSoc[i + 1]) {
-        return i + 1 - 7; // Return the next index
-      }
-    }
+  // Binary search for optimal performance
+  let low = 0, high = volToSoc.length - 1;
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    if (volToSoc[mid] === voltage) return mid;
+    if (volToSoc[mid] < voltage) low = mid + 1;
+    else high = mid - 1;
   }
-
-  return 100; // Fallback return value, should not reach here if voltage is valid
-};
+  return low; // Closest index where voltage would fit
+}
 
 euc.temp.liveParse = function (inc) {
   const dv = new DataView(inc);
   euc.is.alert = 0;
 
   // Volt + Battery
-  euc.dash.live.volt = dv.getUint16(4) / 100;
-  euc.dash.live.bat = euc.dash.opt.bat.pack === 30 ? euc.temp.voltToPercent(euc.dash.live.volt) : euc.dash.opt.bat.pack === 36 ? (euc.dash.live.volt > 150.3 ? 100 : euc.dash.live.volt > 122.4 ? (euc.dash.live.volt - 119.7) / 0.306 : euc.dash.live.volt > 115.2 ? (euc.dash.live.volt - 115.2) / 0.81 : 0) : euc.dash.live.volt > 100.2 ? 100 : euc.dash.live.volt > 81.6 ? (euc.dash.live.volt - 80.7) / 0.195 : euc.dash.live.volt > 79.35 ? (euc.dash.live.volt - 79.35) / 0.4875 : 0;
+  const voltage =  dv.getUint16(4);
+  euc.dash.live.volt = voltage / 100;
+  euc.dash.live.bat = euc.temp.voltToPercent(voltage);
+  // euc.dash.live.bat = euc.dash.opt.bat.pack === 30 ? euc.temp.voltToPercent(euc.dash.live.volt) : euc.dash.opt.bat.pack === 36 ? (euc.dash.live.volt > 150.3 ? 100 : euc.dash.live.volt > 122.4 ? (euc.dash.live.volt - 119.7) / 0.306 : euc.dash.live.volt > 115.2 ? (euc.dash.live.volt - 115.2) / 0.81 : 0) : euc.dash.live.volt > 100.2 ? 100 : euc.dash.live.volt > 81.6 ? (euc.dash.live.volt - 80.7) / 0.195 : euc.dash.live.volt > 79.35 ? (euc.dash.live.volt - 79.35) / 0.4875 : 0;
   euc.log.batL.unshift(euc.dash.live.bat);
   if (euc.log.batL.length > 20) euc.log.batL.pop();
   euc.dash.alrt.bat.cc = euc.dash.live.bat >= 50 ? 0 : euc.dash.live.bat <= euc.dash.alrt.bat.hapt.low ? 2 : 1;
