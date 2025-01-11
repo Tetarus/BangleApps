@@ -123,7 +123,7 @@ Modules.addCached("eucWatch", () => {
   }
 
   var bpp = 4; // powers of two work, 3=8 colors would be nice
-  var g = Graphics.createArrayBuffer(240, 280, bpp, { msb: true });
+  var g = Graphics.createArrayBuffer(240, 280, bpp, { msb: false });
   var pal;
   global.color = Uint16Array([
     0x000, // 0 - Black
